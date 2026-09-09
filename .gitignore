@@ -1,0 +1,19 @@
+# Dependências
+node_modules/
+
+# Arquivos de imagem gerados localmente
+captura_webcam.jpg
+*.jpg
+*.png
+
+# Variáveis de ambiente e segredos locais
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
