@@ -17,3 +17,11 @@ npm-debug.log*
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Android build
+.gradle/
+android/.gradle/
+android/local.properties
+android/**/build/
+**/build/
+*.hprof

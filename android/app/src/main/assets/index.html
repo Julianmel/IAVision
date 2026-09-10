@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAVision — Assistente Visual & OCR</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .badge-updated {
+      background: #065f46;
+      color: #34d399;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #10b981;
+    }
+    .api-key-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1e293b;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      flex-wrap: wrap;
+    }
+    .api-key-bar input {
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      width: 280px;
+    }
+    .api-key-bar button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .api-key-bar button:hover { background: #2563eb; }
+    .btn-test { background: #10b981 !important; }
+    .btn-test:hover { background: #059669 !important; }
+
+    #keyStatus {
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 16px;
+      font-size: 1rem;
+      display: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .key-ok { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; display: block !important; }
+    .key-err { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; display: block !important; }
+    .key-load { background: #1e3a8a; color: #93c5fd; border: 1px solid #3b82f6; display: block !important; }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    @media (max-width: 900px) {
+      .main-container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #131c2e;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+    .flash-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.1s ease-out;
+    }
+    .flash-active { opacity: 0.85; transition: none; }
+
+    .voice-bar {
+      margin-top: 14px;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+    .voice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #334155;
+      color: #94a3b8;
+    }
+    .voice-badge.active {
+      background: #065f46;
+      color: #34d399;
+    }
+    .mic-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .voice-badge.active .mic-dot {
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.5; }
+    }
+    .transcript-text {
+      color: #93c5fd;
+      font-style: italic;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .btn-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-ocr { background: #f59e0b; color: #1e1e1e; font-weight: 700; }
+    .btn-ocr:hover { background: #d97706; color: white; }
+    .btn-primary { background: #10b981; color: white; }
+    .btn-primary:hover { background: #059669; }
+    .btn-secondary { background: #2563eb; color: white; }
+    .btn-secondary:hover { background: #1d4ed8; }
+
+    .preview-box {
+      width: 100%;
+      height: 180px;
+      background: #090d16;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .preview-placeholder {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .ai-result-box {
+      flex: 1;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .ai-status {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ai-text {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #f1f5f9;
+      white-space: pre-wrap;
+    }
+    .ai-controls {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-speak {
+      background: #6366f1;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-speak:hover { background: #4f46e5; }
+    
+    .btn-stop-speak {
+      background: #dc2626;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 2px solid #ef4444;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      animation: pulse-red 1.2s infinite;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+      transition: all 0.2s;
+    }
+    .btn-stop-speak:hover {
+      background: #b91c1c;
+      transform: scale(1.02);
+    }
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9); }
+      100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+    }
+
+    .btn-copy {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .btn-copy:hover { background: #475569; color: white; }
+
+    .tip-box {
+      grid-column: 1 / -1;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      color: #94a3b8;
+    }
+    .tip-box strong { color: #38bdf8; }
+    .badge-command {
+      display: inline-block;
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .badge-ocr {
+      background: #78350f !important;
+      color: #fde68a !important;
+    }
+    .badge-stop {
+      background: #7f1d1d !important;
+      color: #fca5a5 !important;
+    }
+
+    /* ÁREA DE IA PARA PERGUNTAS SOBRE O DOCUMENTO */
+    .qa-card {
+      background: #101a2f;
+      border: 1px solid #2563eb;
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 25px rgba(37, 99, 235, 0.2);
+      animation: fadeInQA 0.4s ease-out;
+      transition: all 0.3s;
+    }
+    @keyframes fadeInQA {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge-ai-ready {
+      background: #065f46;
+      color: #34d399;
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid #10b981;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+    }
+    .qa-subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .qa-suggestions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px dashed #334155;
+    }
+    .chip {
+      background: #1e293b;
+      color: #7dd3fc;
+      border: 1px solid #38bdf8;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chip:hover {
+      background: #0284c7;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+    }
+    .qa-history {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 380px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+    .qa-empty-placeholder {
+      color: #64748b;
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.95rem;
+    }
+    .qa-msg {
+      max-width: 85%;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      animation: fadeInQA 0.2s ease-out;
+    }
+    .qa-msg-user {
+      align-self: flex-end;
+      background: #1d4ed8;
+      color: #eff6ff;
+      border-bottom-right-radius: 2px;
+    }
+    .qa-msg-ai {
+      align-self: flex-start;
+      background: #1e293b;
+      color: #f1f5f9;
+      border-left: 4px solid #38bdf8;
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .qa-msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+    }
+    .qa-msg-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-action-sm {
+      background: #334155;
+      color: #cbd5e1;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-action-sm:hover {
+      background: #475569;
+      color: #ffffff;
+    }
+    .qa-input-bar {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+    .qa-input-wrapper {
+      flex: 1;
+      min-width: 280px;
+      display: flex;
+      background: #090d16;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 4px 8px;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+    .qa-input-wrapper:focus-within {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .qa-input-wrapper input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      padding: 8px 6px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .btn-qa-mic {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-qa-mic:hover {
+      background: #334155;
+    }
+    .btn-qa-mic.listening {
+      background: #dc2626 !important;
+      color: white !important;
+      border-color: #ef4444 !important;
+      animation: pulse 1s infinite;
+    }
+    .qa-options {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>👁️‍🗨️ IAVision — Assistente Visual & OCR</span>
+      <span class="badge-updated">GitHub Pages Ready</span>
+    </div>
+
+    <div class="api-key-bar">
+      <span>🔑 Chave Gemini:</span>
+      <input type="text" id="apiKeyInput" placeholder="Cole sua chave aqui (AQ.Ab8...)">
+      <button class="btn-test" id="btnTestKey" onclick="testarChave()">🧪 Testar Chave</button>
+    </div>
+  </header>
+
+  <div id="keyStatus"></div>
+
+  <div class="main-container">
+    <!-- CÂMERA -->
+    <div class="card">
+      <div class="card-title">
+        <span>Câmera ao Vivo</span>
+        <span id="voiceBadge" class="voice-badge">
+          <span class="mic-dot"></span>
+          <span id="micLabel">Microfone desligado</span>
+        </span>
+      </div>
+
+      <div class="video-wrapper">
+        <video id="webcam" autoplay playsinline muted></video>
+        <div id="flash" class="flash-overlay"></div>
+      </div>
+
+      <div class="voice-bar">
+        <span>🗣️ Voz:</span>
+        <span id="transcript" class="transcript-text">"Diga 'Ler documento todo' ou 'Tirar foto'..."</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ocr" onclick="dispararFluxo('ocr')">
+          📄 Ler Documento Completo (OCR)
+        </button>
+        <button class="btn btn-primary" onclick="dispararFluxo('geral')">
+          📸 Descrever Cena
+        </button>
+        <button class="btn btn-secondary" id="micBtn" onclick="toggleVoz()">
+          🎤 Microfone
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="card">
+      <div class="card-title">
+        <span>Foto Capturada & Transcrição Completa</span>
+      </div>
+
+      <div class="preview-box">
+        <span id="previewPlaceholder" class="preview-placeholder">Nenhuma foto capturada ainda</span>
+        <img id="previewImg" alt="Captura recente">
+      </div>
+
+      <div class="ai-result-box">
+        <div class="ai-status">
+          <span id="aiStatus">Pronto para leitura integral.</span>
+        </div>
+        <div id="aiText" class="ai-text">Aponte o documento para a câmera e diga "Ler documento todo" ou clique no botão dourado. Para parar a voz a qualquer momento, clique no botão vermelho "🛑 Parar Voz" ou diga "Silêncio".</div>
+      </div>
+
+      <div class="ai-controls">
+        <button class="btn-speak" id="btnRepeat" onclick="repetirAudio()" style="display: none;">🔊 Ouvir Novamente</button>
+        <button class="btn-stop-speak" id="btnStopSpeech" onclick="pararAudio()" style="display: none;">🛑 Parar Voz Imediatamente</button>
+        <button class="btn-copy" id="btnCopy" onclick="copiarTexto()" style="display: none;">📋 Copiar Texto Completo</button>
+      </div>
+    </div>
+
+    <!-- ÁREA DE IA PARA PERGUNTAS SOBRE O DOCUMENTO -->
+    <div id="qaSection" class="card qa-card" style="display: none; grid-column: 1 / -1;">
+      <div class="card-title">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">💬</span>
+          <span>Perguntas & Respostas sobre o Documento Digitalizado</span>
+          <span class="badge-ai-ready">✨ IA Pronta</span>
+        </div>
+        <button class="btn-action-sm" onclick="fecharQA()" style="font-size: 1rem; padding: 3px 10px;" title="Recolher área de perguntas">✕ Fechar</button>
+      </div>
+
+      <p class="qa-subtitle">
+        Tire dúvidas, peça resumos, consulte valores, datas, medicamentos ou orientações presentes no documento digitalizado. Você pode usar os botões rápidos, digitar sua pergunta ou falar pelo microfone!
+      </p>
+
+      <!-- Sugestões Rápidas -->
+      <div class="qa-suggestions">
+        <span style="color: #64748b; font-size: 0.85rem; font-weight: 600;">Sugestões rápidas:</span>
+        <button class="chip" onclick="usarSugestao('Faça um resumo dos pontos principais deste documento.')">📋 Resumo geral</button>
+        <button class="chip" onclick="usarSugestao('Quais são os medicamentos, doses e posologias citados?')">💊 Medicamentos e doses</button>
+        <button class="chip" onclick="usarSugestao('Quais são as datas, prazos de validade ou de entrega mencionados?')">📅 Datas e prazos</button>
+        <button class="chip" onclick="usarSugestao('Quais são os valores, preços, taxas ou quantidades totais?')">💰 Valores e quantidades</button>
+        <button class="chip" onclick="usarSugestao('Há instruções especiais, alertas, cuidados ou regras de transporte/guarda?')">⚠️ Alertas e cuidados</button>
+      </div>
+
+      <!-- Histórico de Perguntas e Respostas -->
+      <div id="qaHistory" class="qa-history">
+        <div class="qa-empty-placeholder" id="qaEmptyPlaceholder">
+          💡 Nenhuma pergunta feita ainda. Escolha uma sugestão acima ou digite abaixo para consultar qualquer detalhe do documento transcrito!
+        </div>
+      </div>
+
+      <!-- Barra de Envio de Pergunta -->
+      <div class="qa-input-bar">
+        <div class="qa-input-wrapper">
+          <input type="text" id="qaInput" placeholder="Ex: Qual a dosagem prescrita? Qual o prazo de validade?..." onkeydown="tratarEnterQA(event)">
+          <button id="qaMicBtn" class="btn-qa-mic" onclick="perguntarPorVoz()" title="Falar pergunta pelo microfone">
+            🎤 <span id="qaMicText">Falar</span>
+          </button>
+        </div>
+        <button id="qaSendBtn" class="btn btn-primary" onclick="enviarPerguntaQA()">
+          🚀 Perguntar à IA
+        </button>
+      </div>
+
+      <div class="qa-options">
+        <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #94a3b8; cursor: pointer;">
+          <input type="checkbox" id="qaAutoSpeak" checked>
+          <span>🔊 Narrar respostas da IA em voz alta automaticamente</span>
+        </label>
+        <button class="btn-action-sm" onclick="limparHistoricoQA()">🗑️ Limpar Conversa</button>
+      </div>
+    </div>
+
+    <!-- GUIA DE VOZ -->
+    <div class="tip-box">
+      <strong>Comandos de voz para Documentos (OCR Integral):</strong>
+      <br>
+      👉 Diga: 
+      <span class="badge-command badge-ocr">"Ler documento"</span>
+      <span class="badge-command badge-ocr">"Ler documento todo"</span>
+      <span class="badge-command badge-ocr">"Leia tudo"</span>
+      <span class="badge-command badge-ocr">"O que está escrito?"</span>
+      <br><br>
+      <strong>Comando de voz para Perguntas sobre o Documento:</strong>
+      <br>
+      👉 Diga:
+      <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Pergunta: [sua dúvida]"</span>
+      <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Dúvida: [sua dúvida]"</span>
+      <br><br>
+      <strong>Comando de voz para Interromper a Leitura:</strong>
+      <br>
+      👉 Diga:
+      <span class="badge-command badge-stop">"Parar"</span>
+      <span class="badge-command badge-stop">"Silêncio"</span>
+      <span class="badge-command badge-stop">"Para a voz"</span> ou clique em <span class="badge-command badge-stop">🛑 Parar Voz</span>
+    </div>
+  </div>
+
+  <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
+  <script>
+    const video = document.getElementById('webcam');
+    const flash = document.getElementById('flash');
+    const canvas = document.getElementById('hiddenCanvas');
+    const voiceBadge = document.getElementById('voiceBadge');
+    const micLabel = document.getElementById('micLabel');
+    const transcriptEl = document.getElementById('transcript');
+    const micBtn = document.getElementById('micBtn');
+    const previewImg = document.getElementById('previewImg');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    const aiStatus = document.getElementById('aiStatus');
+    const aiText = document.getElementById('aiText');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const keyStatus = document.getElementById('keyStatus');
+    const btnRepeat = document.getElementById('btnRepeat');
+    const btnStopSpeech = document.getElementById('btnStopSpeech');
+    const btnCopy = document.getElementById('btnCopy');
+
+    let recognition = null;
+    let isListening = false;
+    let isProcessing = false;
+    let audioCtx = null;
+    let ultimoTextoIA = '';
+    let ultimaImagemBase64 = '';
+    let qaRecognition = null;
+    let isQAListening = false;
+
+    let isSpeechCancelled = false;
+    window.utteranceQueue = [];
+    let speechKeepAliveTimer = null;
+
+    // Detecta se está rodando no GitHub Pages ou com servidor local
+    const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    window.addEventListener('DOMContentLoaded', function() {
+      const savedKey = localStorage.getItem('GEMINI_API_KEY');
+      if (savedKey) {
+        apiKeyInput.value = savedKey;
+      }
+      startCamera();
+    });
+
+    function exibirStatusChave(msg, tipo) {
+      keyStatus.textContent = msg;
+      if (tipo === 'ok') {
+        keyStatus.className = 'key-ok';
+      } else if (tipo === 'loading') {
+        keyStatus.className = 'key-load';
+      } else {
+        keyStatus.className = 'key-err';
+      }
+    }
+
+    // Chamada direta à API do Google Gemini (funciona no GitHub Pages sem backend!)
+    async function chamarGeminiDireto(base64Image, apiKey, prompt) {
+      const modelos = ['gemini-3.6-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+      const parts = [{ text: prompt }];
+      if (base64Image) {
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: base64Image
+          }
+        });
+      }
+
+      const body = JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: {
+          maxOutputTokens: 3500,
+          temperature: 0.1
+        }
+      });
+
+      let ultimoErro = null;
+      for (const modelo of modelos) {
+        try {
+          const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelo + ':generateContent';
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: body
+          });
+          const data = await resp.json();
+          if (!resp.ok) {
+            throw new Error(data.error?.message || ('Erro HTTP ' + resp.status));
+          }
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) return text.trim();
+        } catch (e) {
+          ultimoErro = e;
+        }
+      }
+      throw ultimoErro || new Error('Não foi possível obter resposta do Gemini.');
+    }
+
+    async function testarChave() {
+      const rawVal = apiKeyInput.value.trim();
+      const key = rawVal.replace(/^["']|["']$/g, '');
+      if (!key) {
+        exibirStatusChave("⚠️ Por favor, cole a sua chave no campo antes de testar.", 'err');
+        alert("Cole sua chave no campo antes de testar!");
+        return;
+      }
+
+      exibirStatusChave("⏳ Enviando chave para teste no Gemini...", 'loading');
+
+      try {
+        let data;
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/test-key', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ apiKey: key })
+            });
+            data = await resp.json();
+          } catch (localErr) {
+            console.warn("Servidor local não possui rota /api/test-key, tentando chamada direta ao Gemini...", localErr);
+            const text = await chamarGeminiDireto(null, key, "Responda em uma única palavra: 'Funcionando'");
+            data = { success: true, message: text };
+          }
+        } else {
+          // GitHub Pages (Direto)
+          const text = await chamarGeminiDireto(null, key, "Responda em uma única palavra: 'Funcionando'");
+          data = { success: true, message: text };
+        }
+
+        if (data.success) {
+          const msgOk = "🎉 SUCESSO! A chave AQ. é válida e o Gemini respondeu: " + data.message;
+          exibirStatusChave(msgOk, 'ok');
+          localStorage.setItem('GEMINI_API_KEY', key);
+          alert("🎉 Sucesso! Chave validada pelo Gemini 3.6 Flash!");
+        } else {
+          const msgErr = "❌ Erro retornado pelo Google: " + (data.error || "Chave rejeitada");
+          exibirStatusChave(msgErr, 'err');
+          alert("Erro na validação da chave:\n" + (data.error || "Chave não aceita"));
+        }
+      } catch (err) {
+        exibirStatusChave("❌ Erro de conexão: " + err.message, 'err');
+        alert("Erro na conexão:\n" + err.message);
+      }
+    }
+
+    function playShutterSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(850, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch (e) { console.warn(e); }
+    }
+
+    function pararAudio() {
+      isSpeechCancelled = true;
+      if (speechKeepAliveTimer) {
+        clearInterval(speechKeepAliveTimer);
+        speechKeepAliveTimer = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      window.utteranceQueue = [];
+      btnStopSpeech.style.display = 'none';
+      console.log('Áudio parado imediatamente!');
+    }
+
+    function falarTexto(texto) {
+      if (!('speechSynthesis' in window)) return;
+      pararAudio();
+      isSpeechCancelled = false;
+
+      const textoLimpo = texto
+        .replace(/[*#_`]/g, '')
+        .replace(/\n+/g, '. ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!textoLimpo) return;
+
+      const frases = [];
+      const blocos = textoLimpo.split(/(?<=[.!?])\s+/);
+      for (let i = 0; i < blocos.length; i++) {
+        const b = blocos[i].trim();
+        if (b.length > 180) {
+          const sub = b.split(/[,;:]\s+/);
+          for (let j = 0; j < sub.length; j++) {
+            if (sub[j].trim()) frases.push(sub[j].trim());
+          }
+        } else if (b.length > 0) {
+          frases.push(b);
+        }
+      }
+
+      if (frases.length === 0) frases.push(textoLimpo);
+
+      let index = 0;
+      btnStopSpeech.style.display = 'inline-flex';
+
+      if (speechKeepAliveTimer) clearInterval(speechKeepAliveTimer);
+      speechKeepAliveTimer = setInterval(function() {
+        if (!isSpeechCancelled && window.speechSynthesis.speaking) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        } else {
+          clearInterval(speechKeepAliveTimer);
+        }
+      }, 10000);
+
+      function falarBloco() {
+        if (isSpeechCancelled) {
+          btnStopSpeech.style.display = 'none';
+          window.utteranceQueue = [];
+          return;
+        }
+
+        if (index >= frases.length) {
+          btnStopSpeech.style.display = 'none';
+          if (speechKeepAliveTimer) clearInterval(speechKeepAliveTimer);
+          window.utteranceQueue = [];
+          return;
+        }
+
+        const fraseAtual = frases[index];
+        index++;
+
+        const utter = new SpeechSynthesisUtterance(fraseAtual);
+        utter.lang = 'pt-BR';
+        utter.rate = 1.05;
+
+        window.utteranceQueue.push(utter);
+
+        utter.onend = function() {
+          const pos = window.utteranceQueue.indexOf(utter);
+          if (pos !== -1) window.utteranceQueue.splice(pos, 1);
+          if (!isSpeechCancelled) {
+            falarBloco();
+          }
+        };
+
+        utter.onerror = function(e) {
+          console.warn('Speech error:', e);
+          const pos = window.utteranceQueue.indexOf(utter);
+          if (pos !== -1) window.utteranceQueue.splice(pos, 1);
+          if (!isSpeechCancelled && e.error !== 'interrupted' && e.error !== 'canceled') {
+            falarBloco();
+          }
+        };
+
+        if (!isSpeechCancelled) {
+          window.speechSynthesis.speak(utter);
+        }
+      }
+
+      falarBloco();
+    }
+
+    function repetirAudio() {
+      if (ultimoTextoIA) falarTexto(ultimoTextoIA);
+    }
+
+    function copiarTexto() {
+      if (!ultimoTextoIA) return;
+      navigator.clipboard.writeText(ultimoTextoIA).then(function() {
+        alert("✅ Texto copiado para a área de transferência!");
+      }).catch(function(e) {
+        alert("Erro ao copiar: " + e.message);
+      });
+    }
+
+    function dispararFlash() {
+      flash.classList.add('flash-active');
+      setTimeout(function() {
+        flash.classList.remove('flash-active');
+      }, 80);
+    }
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1920, min: 1280 },
+            height: { ideal: 1080, min: 720 }
+          },
+          audio: false
+        });
+        video.srcObject = stream;
+        iniciarEscutaVoz();
+      } catch (err) {
+        aiStatus.textContent = "Erro na câmera: " + (err.message || err.name);
+        aiStatus.style.color = "#f87171";
+      }
+    }
+
+    function iniciarEscutaVoz() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        micLabel.textContent = "Voz indisponível";
+        micBtn.style.display = 'none';
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'pt-BR';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = function() {
+        isListening = true;
+        voiceBadge.classList.add('active');
+        micLabel.textContent = "Ouvindo sua voz...";
+        micBtn.textContent = "🛑 Pausar Microfone";
+      };
+
+      recognition.onresult = function(event) {
+        let texto = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          texto += event.results[i][0].transcript.toLowerCase();
+        }
+
+        transcriptEl.textContent = '"' + texto.trim() + '"';
+
+        const gatilhosParar = [
+          'parar voz',
+          'para a voz',
+          'parar',
+          'silêncio',
+          'silencio',
+          'cala a boca',
+          'cancela',
+          'chega'
+        ];
+
+        const matchParar = gatilhosParar.some(function(cmd) { return texto.includes(cmd); });
+        if (matchParar) {
+          pararAudio();
+          transcriptEl.innerHTML = '<strong style="color: #ef4444;">🛑 Voz interrompida com sucesso!</strong>';
+          return;
+        }
+
+        // Pergunta por voz sobre o documento digitalizado
+        if (ultimoTextoIA && !isProcessing && (texto.includes('pergunta:') || texto.startsWith('pergunta ') || texto.startsWith('perguntar ') || texto.startsWith('dúvida '))) {
+          const perguntaLimpa = texto.replace(/^(pergunta|perguntar|dúvida)\s*(sobre o documento|sobre o texto)?\s*[:,-]?\s*/i, '').trim();
+          if (perguntaLimpa.length > 3) {
+            transcriptEl.innerHTML = '<strong style="color: #38bdf8;">💬 Pergunta: "' + perguntaLimpa + '"!</strong>';
+            abrirAreaQA();
+            enviarPerguntaQA(perguntaLimpa);
+            return;
+          }
+        }
+
+        const gatilhosOCR = [
+          'ler documento todo',
+          'leia tudo',
+          'ler tudo',
+          'ler documento',
+          'ler texto',
+          'leia isso',
+          'o que está escrito',
+          'o que esta escrito',
+          'fazer ocr',
+          'transcrever tudo',
+          'transcrever',
+          'ler a folha',
+          'leia o documento',
+          'ler papel'
+        ];
+
+        const gatilhosGeral = [
+          'tirar uma foto',
+          'tirar foto',
+          'capturar',
+          'o que você vê',
+          'o que você esta vendo',
+          'o que você está vendo',
+          'olha isso',
+          'foto',
+          'xis'
+        ];
+
+        const matchOCR = gatilhosOCR.some(function(cmd) { return texto.includes(cmd); });
+        const matchGeral = gatilhosGeral.some(function(cmd) { return texto.includes(cmd); });
+
+        if ((matchOCR || matchGeral) && !isProcessing) {
+          const modo = matchOCR ? 'ocr' : 'geral';
+          const label = matchOCR ? '📄 OCR Completo' : '📸 Visão Geral';
+          transcriptEl.innerHTML = '<strong style="color: #34d399;">' + label + ': "' + texto.trim() + '"!</strong>';
+          dispararFluxo(modo);
+        }
+      };
+
+      recognition.onend = function() {
+        if (isListening) {
+          try { recognition.start(); } catch(e) {}
+        } else {
+          voiceBadge.classList.remove('active');
+          micLabel.textContent = "Microfone pausado";
+          micBtn.textContent = "🎤 Ativar Escuta Contínua";
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch(e) {}
+    }
+
+    function toggleVoz() {
+      if (!recognition) {
+        iniciarEscutaVoz();
+        return;
+      }
+      if (isListening) {
+        isListening = false;
+        recognition.stop();
+      } else {
+        isListening = true;
+        recognition.start();
+      }
+    }
+
+    async function dispararFluxo(modo) {
+      if (isProcessing || !video.videoWidth) return;
+      isProcessing = true;
+
+      pararAudio();
+      playShutterSound();
+      dispararFlash();
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
+      const base64Clean = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+
+      previewImg.src = dataUrl;
+      previewImg.style.display = 'block';
+      previewPlaceholder.style.display = 'none';
+
+      const isOCR = modo === 'ocr';
+      aiStatus.textContent = isOCR ? "📄 Lendo 100% do documento, aguarde..." : "📸 Analisando imagem...";
+      aiStatus.style.color = isOCR ? "#fbbf24" : "#38bdf8";
+      aiText.textContent = isOCR ? "Transcrevendo todo o documento linha por linha sem omitir nada..." : "Processando imagem...";
+
+      const apiKey = apiKeyInput.value.trim().replace(/^["']|["']$/g, '') || localStorage.getItem('GEMINI_API_KEY');
+      if (!apiKey) {
+        aiStatus.textContent = "⚠️ Chave de API não informada";
+        aiStatus.style.color = "#fbbf24";
+        aiText.textContent = "Por favor, cole sua chave no topo da página e clique em '🧪 Testar Chave'.";
+        falarTexto("Chave de API não informada. Cole sua chave no topo da tela.");
+        isProcessing = false;
+        return;
+      }
+
+      const promptOCR = `Você é um leitor de documentos e especialista em OCR de alta precisão e acessibilidade.
+Sua missão é transcrever e narrar na íntegra CADA LINHA E CADA PALAVRA do documento mostrado na imagem. NÃO RESUMA NADA.
+1. Cabeçalho e Identificação: leia títulos, órgãos, datas, protocolos, nomes e dados.
+2. Tabelas e Listas de Medicamentos/Itens: leia cada linha individualmente (nome, laboratório, lote, validade, quantidade). Não agrupe nem resuma!
+3. Observações e Rodapé: leia todas as instruções, regras de renovação e avisos (ex: caixa térmica/gelo).
+Escreva em texto corrido e pontuado para áudio claro.`;
+
+      const promptGeral = `Você é um assistente visual. Se houver um documento ou texto em destaque, leia todo o conteúdo. Se for um objeto ou cena, descreva com clareza o que vê em português do Brasil.`;
+
+      const promptFinal = isOCR ? promptOCR : promptGeral;
+
+      try {
+        let textoResultado = '';
+
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/analyze', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: base64Clean,
+                apiKey: apiKey,
+                mode: modo
+              })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'Erro no servidor');
+            textoResultado = data.text;
+          } catch (localErr) {
+            console.warn("Servidor local não processou rota /api/analyze, tentando chamada direta ao Gemini...", localErr);
+            textoResultado = await chamarGeminiDireto(base64Clean, apiKey, promptFinal);
+          }
+        } else {
+          // No GitHub Pages: chamada direta à API do Gemini via HTTPS
+          textoResultado = await chamarGeminiDireto(base64Clean, apiKey, promptFinal);
+        }
+
+        ultimoTextoIA = textoResultado;
+        ultimaImagemBase64 = base64Clean;
+        aiStatus.textContent = isOCR ? "📄 Documento Transcrito na Íntegra (OCR):" : "✅ Análise concluída:";
+        aiStatus.style.color = "#34d399";
+        aiText.textContent = textoResultado;
+        btnRepeat.style.display = 'inline-flex';
+        btnCopy.style.display = 'inline-flex';
+
+        falarTexto(textoResultado);
+
+        // Abre a área de IA para responder a dúvidas sobre o documento digitalizado
+        if (isOCR || textoResultado) {
+          abrirAreaQA();
+        }
+      } catch (err) {
+        console.error(err);
+        aiStatus.textContent = "Erro na análise:";
+        aiStatus.style.color = "#f87171";
+        aiText.textContent = "Detalhes do erro:\n" + err.message;
+        falarTexto("Ocorreu um erro ao processar o documento.");
+      } finally {
+        setTimeout(function() { isProcessing = false; }, 2000);
+      }
+    }
+
+    // ==========================================
+    // ÁREA DE IA: PERGUNTAS SOBRE O DOCUMENTO
+    // ==========================================
+    function abrirAreaQA() {
+      const qaSection = document.getElementById('qaSection');
+      if (!qaSection) return;
+      qaSection.style.display = 'flex';
+      setTimeout(function() {
+        qaSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const input = document.getElementById('qaInput');
+        if (input) input.focus();
+      }, 350);
+    }
+
+    function fecharQA() {
+      const qaSection = document.getElementById('qaSection');
+      if (qaSection) qaSection.style.display = 'none';
+    }
+
+    function limparHistoricoQA() {
+      const historyEl = document.getElementById('qaHistory');
+      if (!historyEl) return;
+      historyEl.innerHTML = '<div class="qa-empty-placeholder" id="qaEmptyPlaceholder">💡 Histórico limpo. Faça uma pergunta acima ou digite abaixo para consultar qualquer detalhe do documento transcrito!</div>';
+    }
+
+    function usarSugestao(pergunta) {
+      const input = document.getElementById('qaInput');
+      if (input) input.value = pergunta;
+      enviarPerguntaQA(pergunta);
+    }
+
+    function tratarEnterQA(e) {
+      if (e.key === 'Enter') {
+        enviarPerguntaQA();
+      }
+    }
+
+    function adicionarMensagemQA(tipo, texto, idTemp) {
+      const historyEl = document.getElementById('qaHistory');
+      if (!historyEl) return null;
+
+      const placeholder = document.getElementById('qaEmptyPlaceholder');
+      if (placeholder) placeholder.remove();
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = tipo === 'user' ? 'qa-msg qa-msg-user' : 'qa-msg qa-msg-ai';
+      if (idTemp) msgDiv.id = idTemp;
+
+      const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const titulo = tipo === 'user' ? '👤 Sua Pergunta' : '🤖 IAVision Resposta';
+
+      let acoesHtml = '';
+      if (tipo === 'ai' && !idTemp) {
+        acoesHtml = `
+          <div class="qa-msg-actions">
+            <button class="btn-action-sm" onclick="falarTexto(this.closest('.qa-msg').querySelector('.qa-msg-body').innerText)">🔊 Ouvir</button>
+            <button class="btn-action-sm" onclick="pararAudio()">🛑 Parar</button>
+            <button class="btn-action-sm" onclick="copiarTextoMensagem(this)">📋 Copiar</button>
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        <div class="qa-msg-header">
+          <span>${titulo}</span>
+          <span>${hora}</span>
+        </div>
+        <div class="qa-msg-body" style="white-space: pre-wrap;">${escapeHtml(texto)}</div>
+        ${acoesHtml}
+      `;
+
+      historyEl.appendChild(msgDiv);
+      historyEl.scrollTop = historyEl.scrollHeight;
+      return msgDiv;
+    }
+
+    function copiarTextoMensagem(btn) {
+      const body = btn.closest('.qa-msg').querySelector('.qa-msg-body');
+      if (!body) return;
+      navigator.clipboard.writeText(body.innerText).then(function() {
+        alert("✅ Resposta copiada!");
+      });
+    }
+
+    function escapeHtml(str) {
+      return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function enviarPerguntaQA(perguntaCustom) {
+      const input = document.getElementById('qaInput');
+      const sendBtn = document.getElementById('qaSendBtn');
+      const pergunta = (perguntaCustom || (input ? input.value : '')).trim();
+
+      if (!pergunta) {
+        alert("Por favor, digite ou fale uma pergunta sobre o documento.");
+        return;
+      }
+
+      if (!ultimoTextoIA) {
+        alert("Nenhum documento foi digitalizado ainda. Aponte o documento para a câmera e clique em 'Ler Documento Completo' primeiro!");
+        return;
+      }
+
+      const apiKey = apiKeyInput.value.trim().replace(/^["']|["']$/g, '') || localStorage.getItem('GEMINI_API_KEY');
+      if (!apiKey) {
+        alert("Por favor, cole e valide sua chave do Gemini no topo da tela antes de perguntar.");
+        return;
+      }
+
+      if (input) input.value = '';
+      adicionarMensagemQA('user', pergunta);
+
+      const tempId = 'temp_ai_' + Date.now();
+      adicionarMensagemQA('ai', '⏳ Analisando o documento e elaborando a resposta...', tempId);
+
+      if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '⏳ Pensando...';
+      }
+
+      const promptQnA = `Você é o assistente inteligente IAVision especializado em responder dúvidas e analisar documentos digitalizados.
+O usuário digitalizou o seguinte documento:
+---
+${ultimoTextoIA}
+---
+
+Pergunta do usuário: "${pergunta}"
+
+Instruções:
+1. Responda à pergunta do usuário baseando-se com máxima precisão nas informações do documento acima.
+2. Seja direto, claro e explicativo na medida certa.
+3. Se a informação solicitada não constar no documento, informe isso de maneira transparente e educada.
+4. Escreva a resposta em português do Brasil com boa pontuação para facilitar a leitura em voz alta por síntese de áudio.`;
+
+      try {
+        let respostaTexto = '';
+
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/ask-document', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                question: pergunta,
+                documentText: ultimoTextoIA,
+                image: ultimaImagemBase64,
+                apiKey: apiKey
+              })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'Erro no servidor local');
+            respostaTexto = data.answer;
+          } catch (localErr) {
+            console.warn("Servidor local não processou /api/ask-document, tentando chamada direta ao Gemini...", localErr);
+            respostaTexto = await chamarGeminiDireto(ultimaImagemBase64, apiKey, promptQnA);
+          }
+        } else {
+          respostaTexto = await chamarGeminiDireto(ultimaImagemBase64, apiKey, promptQnA);
+        }
+
+        const tempDiv = document.getElementById(tempId);
+        if (tempDiv) {
+          tempDiv.id = '';
+          const bodyEl = tempDiv.querySelector('.qa-msg-body');
+          if (bodyEl) bodyEl.innerHTML = escapeHtml(respostaTexto);
+
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'qa-msg-actions';
+          actionsDiv.innerHTML = `
+            <button class="btn-action-sm" onclick="falarTexto(this.closest('.qa-msg').querySelector('.qa-msg-body').innerText)">🔊 Ouvir</button>
+            <button class="btn-action-sm" onclick="pararAudio()">🛑 Parar</button>
+            <button class="btn-action-sm" onclick="copiarTextoMensagem(this)">📋 Copiar</button>
+          `;
+          tempDiv.appendChild(actionsDiv);
+        }
+
+        const historyEl = document.getElementById('qaHistory');
+        if (historyEl) historyEl.scrollTop = historyEl.scrollHeight;
+
+        const autoSpeak = document.getElementById('qaAutoSpeak');
+        if (autoSpeak && autoSpeak.checked) {
+          falarTexto(respostaTexto);
+        }
+      } catch (err) {
+        console.error('Erro no QA:', err);
+        const tempDiv = document.getElementById(tempId);
+        if (tempDiv) {
+          tempDiv.id = '';
+          const bodyEl = tempDiv.querySelector('.qa-msg-body');
+          if (bodyEl) bodyEl.innerHTML = '❌ <span style="color: #ef4444;">Erro ao processar pergunta: ' + escapeHtml(err.message) + '</span>';
+        }
+      } finally {
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = '🚀 Perguntar à IA';
+        }
+      }
+    }
+
+    function perguntarPorVoz() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Reconhecimento de voz não é suportado pelo seu navegador.");
+        return;
+      }
+
+      const micBtn = document.getElementById('qaMicBtn');
+      const micText = document.getElementById('qaMicText');
+      const input = document.getElementById('qaInput');
+
+      if (isQAListening && qaRecognition) {
+        qaRecognition.stop();
+        return;
+      }
+
+      pararAudio();
+
+      qaRecognition = new SpeechRecognition();
+      qaRecognition.lang = 'pt-BR';
+      qaRecognition.continuous = false;
+      qaRecognition.interimResults = true;
+
+      qaRecognition.onstart = function() {
+        isQAListening = true;
+        if (micBtn) micBtn.classList.add('listening');
+        if (micText) micText.textContent = 'Ouvindo...';
+        if (input) input.placeholder = 'Fale sua dúvida agora...';
+      };
+
+      qaRecognition.onresult = function(e) {
+        let texto = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          texto += e.results[i][0].transcript;
+        }
+        if (input) input.value = texto;
+      };
+
+      qaRecognition.onend = function() {
+        isQAListening = false;
+        if (micBtn) micBtn.classList.remove('listening');
+        if (micText) micText.textContent = 'Falar';
+        if (input) input.placeholder = 'Ex: Qual a dosagem prescrita? Qual o prazo de validade?...';
+
+        if (input && input.value.trim().length > 2) {
+          enviarPerguntaQA(input.value.trim());
+        }
+      };
+
+      qaRecognition.onerror = function(e) {
+        console.warn('QA voice error:', e);
+        isQAListening = false;
+        if (micBtn) micBtn.classList.remove('listening');
+        if (micText) micText.textContent = 'Falar';
+      };
+
+      try {
+        qaRecognition.start();
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -29,12 +29,23 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 
 ---
 
+## 📱 Como Instalar no Celular (Android APK)
+
+Você pode instalar o **IAVision** diretamente no seu smartphone Android:
+
+1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
+2. Baixe o arquivo **`IAVision.APK`**.
+3. Toque no arquivo baixado no celular para instalar (autorize a instalação de fontes desconhecidas se solicitado).
+4. Abra o **IAVision**: conceda as permissões de Câmera e Microfone quando solicitadas e use o app diretamente pelo celular!
+
+---
+
 ## ⚡ Como Executar no Windows (Sem Instalar Nada)
 
 Você pode baixar e executar diretamente o **executável autônomo** para Windows:
 
 1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
-2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.0-Windows.zip`).
+2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.1-Windows.zip`).
 3. Dê um duplo clique em `IAVision.exe`:
    * O servidor local é iniciado automaticamente.
    * Seu navegador padrão abrirá em **http://localhost:3000**.

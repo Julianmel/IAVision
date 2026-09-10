@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.IAVision" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:colorAccent">#38bdf8</item>
+        <item name="android:navigationBarColor">#090d16</item>
+        <item name="android:statusBarColor">#090d16</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
