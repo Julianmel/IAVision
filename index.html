@@ -355,6 +355,209 @@
       background: #7f1d1d !important;
       color: #fca5a5 !important;
     }
+
+    /* ÁREA DE IA PARA PERGUNTAS SOBRE O DOCUMENTO */
+    .qa-card {
+      background: #101a2f;
+      border: 1px solid #2563eb;
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 25px rgba(37, 99, 235, 0.2);
+      animation: fadeInQA 0.4s ease-out;
+      transition: all 0.3s;
+    }
+    @keyframes fadeInQA {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge-ai-ready {
+      background: #065f46;
+      color: #34d399;
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid #10b981;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+    }
+    .qa-subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .qa-suggestions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px dashed #334155;
+    }
+    .chip {
+      background: #1e293b;
+      color: #7dd3fc;
+      border: 1px solid #38bdf8;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chip:hover {
+      background: #0284c7;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+    }
+    .qa-history {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 380px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+    .qa-empty-placeholder {
+      color: #64748b;
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.95rem;
+    }
+    .qa-msg {
+      max-width: 85%;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      animation: fadeInQA 0.2s ease-out;
+    }
+    .qa-msg-user {
+      align-self: flex-end;
+      background: #1d4ed8;
+      color: #eff6ff;
+      border-bottom-right-radius: 2px;
+    }
+    .qa-msg-ai {
+      align-self: flex-start;
+      background: #1e293b;
+      color: #f1f5f9;
+      border-left: 4px solid #38bdf8;
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .qa-msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+    }
+    .qa-msg-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-action-sm {
+      background: #334155;
+      color: #cbd5e1;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-action-sm:hover {
+      background: #475569;
+      color: #ffffff;
+    }
+    .qa-input-bar {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+    .qa-input-wrapper {
+      flex: 1;
+      min-width: 280px;
+      display: flex;
+      background: #090d16;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 4px 8px;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+    .qa-input-wrapper:focus-within {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .qa-input-wrapper input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      padding: 8px 6px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .btn-qa-mic {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-qa-mic:hover {
+      background: #334155;
+    }
+    .btn-qa-mic.listening {
+      background: #dc2626 !important;
+      color: white !important;
+      border-color: #ef4444 !important;
+      animation: pulse 1s infinite;
+    }
+    .qa-options {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
@@ -433,6 +636,60 @@
       </div>
     </div>
 
+    <!-- ÁREA DE IA PARA PERGUNTAS SOBRE O DOCUMENTO -->
+    <div id="qaSection" class="card qa-card" style="display: none; grid-column: 1 / -1;">
+      <div class="card-title">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">💬</span>
+          <span>Perguntas & Respostas sobre o Documento Digitalizado</span>
+          <span class="badge-ai-ready">✨ IA Pronta</span>
+        </div>
+        <button class="btn-action-sm" onclick="fecharQA()" style="font-size: 1rem; padding: 3px 10px;" title="Recolher área de perguntas">✕ Fechar</button>
+      </div>
+
+      <p class="qa-subtitle">
+        Tire dúvidas, peça resumos, consulte valores, datas, medicamentos ou orientações presentes no documento digitalizado. Você pode usar os botões rápidos, digitar sua pergunta ou falar pelo microfone!
+      </p>
+
+      <!-- Sugestões Rápidas -->
+      <div class="qa-suggestions">
+        <span style="color: #64748b; font-size: 0.85rem; font-weight: 600;">Sugestões rápidas:</span>
+        <button class="chip" onclick="usarSugestao('Faça um resumo dos pontos principais deste documento.')">📋 Resumo geral</button>
+        <button class="chip" onclick="usarSugestao('Quais são os medicamentos, doses e posologias citados?')">💊 Medicamentos e doses</button>
+        <button class="chip" onclick="usarSugestao('Quais são as datas, prazos de validade ou de entrega mencionados?')">📅 Datas e prazos</button>
+        <button class="chip" onclick="usarSugestao('Quais são os valores, preços, taxas ou quantidades totais?')">💰 Valores e quantidades</button>
+        <button class="chip" onclick="usarSugestao('Há instruções especiais, alertas, cuidados ou regras de transporte/guarda?')">⚠️ Alertas e cuidados</button>
+      </div>
+
+      <!-- Histórico de Perguntas e Respostas -->
+      <div id="qaHistory" class="qa-history">
+        <div class="qa-empty-placeholder" id="qaEmptyPlaceholder">
+          💡 Nenhuma pergunta feita ainda. Escolha uma sugestão acima ou digite abaixo para consultar qualquer detalhe do documento transcrito!
+        </div>
+      </div>
+
+      <!-- Barra de Envio de Pergunta -->
+      <div class="qa-input-bar">
+        <div class="qa-input-wrapper">
+          <input type="text" id="qaInput" placeholder="Ex: Qual a dosagem prescrita? Qual o prazo de validade?..." onkeydown="tratarEnterQA(event)">
+          <button id="qaMicBtn" class="btn-qa-mic" onclick="perguntarPorVoz()" title="Falar pergunta pelo microfone">
+            🎤 <span id="qaMicText">Falar</span>
+          </button>
+        </div>
+        <button id="qaSendBtn" class="btn btn-primary" onclick="enviarPerguntaQA()">
+          🚀 Perguntar à IA
+        </button>
+      </div>
+
+      <div class="qa-options">
+        <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #94a3b8; cursor: pointer;">
+          <input type="checkbox" id="qaAutoSpeak" checked>
+          <span>🔊 Narrar respostas da IA em voz alta automaticamente</span>
+        </label>
+        <button class="btn-action-sm" onclick="limparHistoricoQA()">🗑️ Limpar Conversa</button>
+      </div>
+    </div>
+
     <!-- GUIA DE VOZ -->
     <div class="tip-box">
       <strong>Comandos de voz para Documentos (OCR Integral):</strong>
@@ -442,6 +699,12 @@
       <span class="badge-command badge-ocr">"Ler documento todo"</span>
       <span class="badge-command badge-ocr">"Leia tudo"</span>
       <span class="badge-command badge-ocr">"O que está escrito?"</span>
+      <br><br>
+      <strong>Comando de voz para Perguntas sobre o Documento:</strong>
+      <br>
+      👉 Diga:
+      <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Pergunta: [sua dúvida]"</span>
+      <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Dúvida: [sua dúvida]"</span>
       <br><br>
       <strong>Comando de voz para Interromper a Leitura:</strong>
       <br>
@@ -477,6 +740,9 @@
     let isProcessing = false;
     let audioCtx = null;
     let ultimoTextoIA = '';
+    let ultimaImagemBase64 = '';
+    let qaRecognition = null;
+    let isQAListening = false;
 
     let isSpeechCancelled = false;
     window.utteranceQueue = [];
@@ -803,6 +1069,17 @@
           return;
         }
 
+        // Pergunta por voz sobre o documento digitalizado
+        if (ultimoTextoIA && !isProcessing && (texto.includes('pergunta:') || texto.startsWith('pergunta ') || texto.startsWith('perguntar ') || texto.startsWith('dúvida '))) {
+          const perguntaLimpa = texto.replace(/^(pergunta|perguntar|dúvida)\s*(sobre o documento|sobre o texto)?\s*[:,-]?\s*/i, '').trim();
+          if (perguntaLimpa.length > 3) {
+            transcriptEl.innerHTML = '<strong style="color: #38bdf8;">💬 Pergunta: "' + perguntaLimpa + '"!</strong>';
+            abrirAreaQA();
+            enviarPerguntaQA(perguntaLimpa);
+            return;
+          }
+        }
+
         const gatilhosOCR = [
           'ler documento todo',
           'leia tudo',
@@ -945,6 +1222,7 @@ Escreva em texto corrido e pontuado para áudio claro.`;
         }
 
         ultimoTextoIA = textoResultado;
+        ultimaImagemBase64 = base64Clean;
         aiStatus.textContent = isOCR ? "📄 Documento Transcrito na Íntegra (OCR):" : "✅ Análise concluída:";
         aiStatus.style.color = "#34d399";
         aiText.textContent = textoResultado;
@@ -952,6 +1230,11 @@ Escreva em texto corrido e pontuado para áudio claro.`;
         btnCopy.style.display = 'inline-flex';
 
         falarTexto(textoResultado);
+
+        // Abre a área de IA para responder a dúvidas sobre o documento digitalizado
+        if (isOCR || textoResultado) {
+          abrirAreaQA();
+        }
       } catch (err) {
         console.error(err);
         aiStatus.textContent = "Erro na análise:";
@@ -960,6 +1243,273 @@ Escreva em texto corrido e pontuado para áudio claro.`;
         falarTexto("Ocorreu um erro ao processar o documento.");
       } finally {
         setTimeout(function() { isProcessing = false; }, 2000);
+      }
+    }
+
+    // ==========================================
+    // ÁREA DE IA: PERGUNTAS SOBRE O DOCUMENTO
+    // ==========================================
+    function abrirAreaQA() {
+      const qaSection = document.getElementById('qaSection');
+      if (!qaSection) return;
+      qaSection.style.display = 'flex';
+      setTimeout(function() {
+        qaSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const input = document.getElementById('qaInput');
+        if (input) input.focus();
+      }, 350);
+    }
+
+    function fecharQA() {
+      const qaSection = document.getElementById('qaSection');
+      if (qaSection) qaSection.style.display = 'none';
+    }
+
+    function limparHistoricoQA() {
+      const historyEl = document.getElementById('qaHistory');
+      if (!historyEl) return;
+      historyEl.innerHTML = '<div class="qa-empty-placeholder" id="qaEmptyPlaceholder">💡 Histórico limpo. Faça uma pergunta acima ou digite abaixo para consultar qualquer detalhe do documento transcrito!</div>';
+    }
+
+    function usarSugestao(pergunta) {
+      const input = document.getElementById('qaInput');
+      if (input) input.value = pergunta;
+      enviarPerguntaQA(pergunta);
+    }
+
+    function tratarEnterQA(e) {
+      if (e.key === 'Enter') {
+        enviarPerguntaQA();
+      }
+    }
+
+    function adicionarMensagemQA(tipo, texto, idTemp) {
+      const historyEl = document.getElementById('qaHistory');
+      if (!historyEl) return null;
+
+      const placeholder = document.getElementById('qaEmptyPlaceholder');
+      if (placeholder) placeholder.remove();
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = tipo === 'user' ? 'qa-msg qa-msg-user' : 'qa-msg qa-msg-ai';
+      if (idTemp) msgDiv.id = idTemp;
+
+      const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const titulo = tipo === 'user' ? '👤 Sua Pergunta' : '🤖 IAVision Resposta';
+
+      let acoesHtml = '';
+      if (tipo === 'ai' && !idTemp) {
+        acoesHtml = `
+          <div class="qa-msg-actions">
+            <button class="btn-action-sm" onclick="falarTexto(this.closest('.qa-msg').querySelector('.qa-msg-body').innerText)">🔊 Ouvir</button>
+            <button class="btn-action-sm" onclick="pararAudio()">🛑 Parar</button>
+            <button class="btn-action-sm" onclick="copiarTextoMensagem(this)">📋 Copiar</button>
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        <div class="qa-msg-header">
+          <span>${titulo}</span>
+          <span>${hora}</span>
+        </div>
+        <div class="qa-msg-body" style="white-space: pre-wrap;">${escapeHtml(texto)}</div>
+        ${acoesHtml}
+      `;
+
+      historyEl.appendChild(msgDiv);
+      historyEl.scrollTop = historyEl.scrollHeight;
+      return msgDiv;
+    }
+
+    function copiarTextoMensagem(btn) {
+      const body = btn.closest('.qa-msg').querySelector('.qa-msg-body');
+      if (!body) return;
+      navigator.clipboard.writeText(body.innerText).then(function() {
+        alert("✅ Resposta copiada!");
+      });
+    }
+
+    function escapeHtml(str) {
+      return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function enviarPerguntaQA(perguntaCustom) {
+      const input = document.getElementById('qaInput');
+      const sendBtn = document.getElementById('qaSendBtn');
+      const pergunta = (perguntaCustom || (input ? input.value : '')).trim();
+
+      if (!pergunta) {
+        alert("Por favor, digite ou fale uma pergunta sobre o documento.");
+        return;
+      }
+
+      if (!ultimoTextoIA) {
+        alert("Nenhum documento foi digitalizado ainda. Aponte o documento para a câmera e clique em 'Ler Documento Completo' primeiro!");
+        return;
+      }
+
+      const apiKey = apiKeyInput.value.trim().replace(/^["']|["']$/g, '') || localStorage.getItem('GEMINI_API_KEY');
+      if (!apiKey) {
+        alert("Por favor, cole e valide sua chave do Gemini no topo da tela antes de perguntar.");
+        return;
+      }
+
+      if (input) input.value = '';
+      adicionarMensagemQA('user', pergunta);
+
+      const tempId = 'temp_ai_' + Date.now();
+      adicionarMensagemQA('ai', '⏳ Analisando o documento e elaborando a resposta...', tempId);
+
+      if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '⏳ Pensando...';
+      }
+
+      const promptQnA = `Você é o assistente inteligente IAVision especializado em responder dúvidas e analisar documentos digitalizados.
+O usuário digitalizou o seguinte documento:
+---
+${ultimoTextoIA}
+---
+
+Pergunta do usuário: "${pergunta}"
+
+Instruções:
+1. Responda à pergunta do usuário baseando-se com máxima precisão nas informações do documento acima.
+2. Seja direto, claro e explicativo na medida certa.
+3. Se a informação solicitada não constar no documento, informe isso de maneira transparente e educada.
+4. Escreva a resposta em português do Brasil com boa pontuação para facilitar a leitura em voz alta por síntese de áudio.`;
+
+      try {
+        let respostaTexto = '';
+
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/ask-document', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                question: pergunta,
+                documentText: ultimoTextoIA,
+                image: ultimaImagemBase64,
+                apiKey: apiKey
+              })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'Erro no servidor local');
+            respostaTexto = data.answer;
+          } catch (localErr) {
+            console.warn("Servidor local não processou /api/ask-document, tentando chamada direta ao Gemini...", localErr);
+            respostaTexto = await chamarGeminiDireto(ultimaImagemBase64, apiKey, promptQnA);
+          }
+        } else {
+          respostaTexto = await chamarGeminiDireto(ultimaImagemBase64, apiKey, promptQnA);
+        }
+
+        const tempDiv = document.getElementById(tempId);
+        if (tempDiv) {
+          tempDiv.id = '';
+          const bodyEl = tempDiv.querySelector('.qa-msg-body');
+          if (bodyEl) bodyEl.innerHTML = escapeHtml(respostaTexto);
+
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'qa-msg-actions';
+          actionsDiv.innerHTML = `
+            <button class="btn-action-sm" onclick="falarTexto(this.closest('.qa-msg').querySelector('.qa-msg-body').innerText)">🔊 Ouvir</button>
+            <button class="btn-action-sm" onclick="pararAudio()">🛑 Parar</button>
+            <button class="btn-action-sm" onclick="copiarTextoMensagem(this)">📋 Copiar</button>
+          `;
+          tempDiv.appendChild(actionsDiv);
+        }
+
+        const historyEl = document.getElementById('qaHistory');
+        if (historyEl) historyEl.scrollTop = historyEl.scrollHeight;
+
+        const autoSpeak = document.getElementById('qaAutoSpeak');
+        if (autoSpeak && autoSpeak.checked) {
+          falarTexto(respostaTexto);
+        }
+      } catch (err) {
+        console.error('Erro no QA:', err);
+        const tempDiv = document.getElementById(tempId);
+        if (tempDiv) {
+          tempDiv.id = '';
+          const bodyEl = tempDiv.querySelector('.qa-msg-body');
+          if (bodyEl) bodyEl.innerHTML = '❌ <span style="color: #ef4444;">Erro ao processar pergunta: ' + escapeHtml(err.message) + '</span>';
+        }
+      } finally {
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = '🚀 Perguntar à IA';
+        }
+      }
+    }
+
+    function perguntarPorVoz() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Reconhecimento de voz não é suportado pelo seu navegador.");
+        return;
+      }
+
+      const micBtn = document.getElementById('qaMicBtn');
+      const micText = document.getElementById('qaMicText');
+      const input = document.getElementById('qaInput');
+
+      if (isQAListening && qaRecognition) {
+        qaRecognition.stop();
+        return;
+      }
+
+      pararAudio();
+
+      qaRecognition = new SpeechRecognition();
+      qaRecognition.lang = 'pt-BR';
+      qaRecognition.continuous = false;
+      qaRecognition.interimResults = true;
+
+      qaRecognition.onstart = function() {
+        isQAListening = true;
+        if (micBtn) micBtn.classList.add('listening');
+        if (micText) micText.textContent = 'Ouvindo...';
+        if (input) input.placeholder = 'Fale sua dúvida agora...';
+      };
+
+      qaRecognition.onresult = function(e) {
+        let texto = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          texto += e.results[i][0].transcript;
+        }
+        if (input) input.value = texto;
+      };
+
+      qaRecognition.onend = function() {
+        isQAListening = false;
+        if (micBtn) micBtn.classList.remove('listening');
+        if (micText) micText.textContent = 'Falar';
+        if (input) input.placeholder = 'Ex: Qual a dosagem prescrita? Qual o prazo de validade?...';
+
+        if (input && input.value.trim().length > 2) {
+          enviarPerguntaQA(input.value.trim());
+        }
+      };
+
+      qaRecognition.onerror = function(e) {
+        console.warn('QA voice error:', e);
+        isQAListening = false;
+        if (micBtn) micBtn.classList.remove('listening');
+        if (micText) micText.textContent = 'Falar';
+      };
+
+      try {
+        qaRecognition.start();
+      } catch (err) {
+        console.warn(err);
       }
     }
   </script>

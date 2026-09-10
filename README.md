@@ -8,10 +8,11 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 
 * 📸 **Captura via Webcam em Alta Definição:** Exibe o vídeo espelhado em tempo real para posicionamento natural e captura o snapshot na orientação real (desespelhado) para leitura fiel de textos.
 * 📄 **OCR Completo de Documentos:** Lê na íntegra receitas médicas, notas fiscais, contratos, livros, cartões e tabelas complexas sem fazer resumos nem omitir dados.
+* 💬 **Área Interativa de IA para Dúvidas do Documento:** Assim que um documento é digitalizado, abre-se automaticamente uma área de perguntas com botões de sugestões rápidas (resumo, medicamentos, datas, valores), campo de texto e entrada de voz para tirar qualquer dúvida sobre o documento lido.
 * 🧠 **Alimentado pelo Gemini 3.6 Flash:** Conectado à API mais recente do Google AI Studio com suporte ao novo formato oficial de chaves de autenticação (`AQ.`).
 * 🗣️ **Controle Total por Voz:** O navegador escuta passivamente seus comandos via Web Speech API em português (`pt-BR`).
 * 🔊 **Narrador Contínuo com Parada Imediata:** Leitura em voz alta de parágrafos longos sem interrupções e com parada instantânea ao comando de *"Silêncio"* ou clique no botão vermelho.
-* 📋 **Cópia Rápida:** Botão para copiar todo o texto extraído para a área de transferência com um clique.
+* 📋 **Cópia Rápida:** Botão para copiar todo o texto extraído ou as respostas da IA para a área de transferência com um clique.
 
 ---
 
@@ -20,6 +21,7 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 | Comando | Ação |
 | :--- | :--- |
 | **"Ler documento"** / **"Ler documento todo"** / **"Leia tudo"** | Dispara o OCR exaustivo para transcrever cada linha de documentos e tabelas. |
+| **"Pergunta: [sua dúvida]"** / **"Dúvida: [sua dúvida]"** | Faz uma pergunta por voz para a IA sobre o documento digitalizado. |
 | **"Tirar uma foto"** / **"O que você vê?"** / **"Olha isso"** | Descreve a cena ou objetos na frente da câmera. |
 | **"Silêncio"** / **"Parar"** / **"Para a voz"** | Interrompe imediatamente o narrador de áudio. |
 

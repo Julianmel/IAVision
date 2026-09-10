@@ -210,6 +210,42 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Rota de Perguntas sobre o Documento Digitalizado
+  if (req.method === 'POST' && req.url === '/api/ask-document') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { question, documentText, image, apiKey } = JSON.parse(body);
+        console.log(`[ASK-DOCUMENT] Pergunta recebida: "${question}"`);
+
+        const promptQnA = `Você é o assistente inteligente IAVision especializado em análise de documentos.
+O usuário digitalizou o seguinte documento:
+---
+${documentText || '(Texto não disponível, consulte a imagem se fornecida)'}
+---
+
+Pergunta do usuário: "${question}"
+
+Instruções:
+1. Responda à pergunta do usuário baseando-se com máxima precisão nas informações do documento acima.
+2. Seja direto, claro e explicativo na medida certa.
+3. Se a informação solicitada não constar no documento, informe isso de maneira transparente e educada.
+4. Escreva a resposta em português do Brasil com boa pontuação para facilitar a leitura em voz alta por síntese de áudio.`;
+
+        const resposta = await chamarGeminiBackend(image, apiKey, 'qna', promptQnA);
+        console.log(`[ASK-DOCUMENT] Resposta gerada com sucesso! (${resposta.length} caracteres)`);
+        res.writeHead(200, { 'Content-Type': 'application/json', ...noCacheHeaders });
+        res.end(JSON.stringify({ success: true, answer: resposta }));
+      } catch (e) {
+        console.error('[ASK-DOCUMENT] Erro:', e.message);
+        res.writeHead(200, { 'Content-Type': 'application/json', ...noCacheHeaders });
+        res.end(JSON.stringify({ success: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
   res.writeHead(404, noCacheHeaders);
   res.end('Not found');
 });
