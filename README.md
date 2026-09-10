@@ -34,7 +34,7 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 Você pode baixar e executar diretamente o **executável autônomo** para Windows:
 
 1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
-2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.0.0-Windows.zip`).
+2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.0-Windows.zip`).
 3. Dê um duplo clique em `IAVision.exe`:
    * O servidor local é iniciado automaticamente.
    * Seu navegador padrão abrirá em **http://localhost:3000**.
