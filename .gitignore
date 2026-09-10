@@ -9,6 +9,9 @@ captura_webcam.jpg
 # Variáveis de ambiente e segredos locais
 .env
 .env.local
+*key*.txt
+*Key*.txt
+IAVision Google IA Studio API Key.txt
 
 # Logs
 *.log
