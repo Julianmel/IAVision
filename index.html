@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assistente Visual & OCR Completo</title>
+  <title>IAVision — Assistente Visual & OCR</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -361,8 +361,8 @@
 
   <header>
     <div class="brand">
-      <span>👁️‍🗨️ Assistente Visual & OCR Completo</span>
-      <span class="badge-updated">IAVision v3.2</span>
+      <span>👁️‍🗨️ IAVision — Assistente Visual & OCR</span>
+      <span class="badge-updated">GitHub Pages Ready</span>
     </div>
 
     <div class="api-key-bar">
@@ -482,6 +482,9 @@
     window.utteranceQueue = [];
     let speechKeepAliveTimer = null;
 
+    // Detecta se está rodando no GitHub Pages ou com servidor local
+    const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
     window.addEventListener('DOMContentLoaded', function() {
       const savedKey = localStorage.getItem('GEMINI_API_KEY');
       if (savedKey) {
@@ -501,6 +504,52 @@
       }
     }
 
+    // Chamada direta à API do Google Gemini (funciona no GitHub Pages sem backend!)
+    async function chamarGeminiDireto(base64Image, apiKey, prompt) {
+      const modelos = ['gemini-3.6-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+      const parts = [{ text: prompt }];
+      if (base64Image) {
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: base64Image
+          }
+        });
+      }
+
+      const body = JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: {
+          maxOutputTokens: 3500,
+          temperature: 0.1
+        }
+      });
+
+      let ultimoErro = null;
+      for (const modelo of modelos) {
+        try {
+          const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelo + ':generateContent';
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: body
+          });
+          const data = await resp.json();
+          if (!resp.ok) {
+            throw new Error(data.error?.message || ('Erro HTTP ' + resp.status));
+          }
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) return text.trim();
+        } catch (e) {
+          ultimoErro = e;
+        }
+      }
+      throw ultimoErro || new Error('Não foi possível obter resposta do Gemini.');
+    }
+
     async function testarChave() {
       const rawVal = apiKeyInput.value.trim();
       const key = rawVal.replace(/^["']|["']$/g, '');
@@ -513,15 +562,28 @@
       exibirStatusChave("⏳ Enviando chave para teste no Gemini...", 'loading');
 
       try {
-        const resp = await fetch('/api/test-key', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey: key })
-        });
-        const data = await resp.json();
+        let data;
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/test-key', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ apiKey: key })
+            });
+            data = await resp.json();
+          } catch (localErr) {
+            console.warn("Servidor local não possui rota /api/test-key, tentando chamada direta ao Gemini...", localErr);
+            const text = await chamarGeminiDireto(null, key, "Responda em uma única palavra: 'Funcionando'");
+            data = { success: true, message: text };
+          }
+        } else {
+          // GitHub Pages (Direto)
+          const text = await chamarGeminiDireto(null, key, "Responda em uma única palavra: 'Funcionando'");
+          data = { success: true, message: text };
+        }
 
         if (data.success) {
-          const msgOk = "🎉 SUCESSO! A chave AQ. é válida e o Gemini 3.6 Flash respondeu: " + data.message;
+          const msgOk = "🎉 SUCESSO! A chave AQ. é válida e o Gemini respondeu: " + data.message;
           exibirStatusChave(msgOk, 'ok');
           localStorage.setItem('GEMINI_API_KEY', key);
           alert("🎉 Sucesso! Chave validada pelo Gemini 3.6 Flash!");
@@ -531,8 +593,8 @@
           alert("Erro na validação da chave:\n" + (data.error || "Chave não aceita"));
         }
       } catch (err) {
-        exibirStatusChave("❌ Erro de conexão com o servidor local: " + err.message, 'err');
-        alert("Erro ao conectar ao servidor local:\n" + err.message);
+        exibirStatusChave("❌ Erro de conexão: " + err.message, 'err');
+        alert("Erro na conexão:\n" + err.message);
       }
     }
 
@@ -845,31 +907,51 @@
         return;
       }
 
+      const promptOCR = `Você é um leitor de documentos e especialista em OCR de alta precisão e acessibilidade.
+Sua missão é transcrever e narrar na íntegra CADA LINHA E CADA PALAVRA do documento mostrado na imagem. NÃO RESUMA NADA.
+1. Cabeçalho e Identificação: leia títulos, órgãos, datas, protocolos, nomes e dados.
+2. Tabelas e Listas de Medicamentos/Itens: leia cada linha individualmente (nome, laboratório, lote, validade, quantidade). Não agrupe nem resuma!
+3. Observações e Rodapé: leia todas as instruções, regras de renovação e avisos (ex: caixa térmica/gelo).
+Escreva em texto corrido e pontuado para áudio claro.`;
+
+      const promptGeral = `Você é um assistente visual. Se houver um documento ou texto em destaque, leia todo o conteúdo. Se for um objeto ou cena, descreva com clareza o que vê em português do Brasil.`;
+
+      const promptFinal = isOCR ? promptOCR : promptGeral;
+
       try {
-        const resp = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: base64Clean,
-            apiKey: apiKey,
-            mode: modo
-          })
-        });
+        let textoResultado = '';
 
-        const data = await resp.json();
-
-        if (!data.success) {
-          throw new Error(data.error || 'Erro desconhecido ao processar');
+        if (isLocalServer) {
+          try {
+            const resp = await fetch('/api/analyze', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: base64Clean,
+                apiKey: apiKey,
+                mode: modo
+              })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'Erro no servidor');
+            textoResultado = data.text;
+          } catch (localErr) {
+            console.warn("Servidor local não processou rota /api/analyze, tentando chamada direta ao Gemini...", localErr);
+            textoResultado = await chamarGeminiDireto(base64Clean, apiKey, promptFinal);
+          }
+        } else {
+          // No GitHub Pages: chamada direta à API do Gemini via HTTPS
+          textoResultado = await chamarGeminiDireto(base64Clean, apiKey, promptFinal);
         }
 
-        ultimoTextoIA = data.text;
+        ultimoTextoIA = textoResultado;
         aiStatus.textContent = isOCR ? "📄 Documento Transcrito na Íntegra (OCR):" : "✅ Análise concluída:";
         aiStatus.style.color = "#34d399";
-        aiText.textContent = data.text;
+        aiText.textContent = textoResultado;
         btnRepeat.style.display = 'inline-flex';
         btnCopy.style.display = 'inline-flex';
 
-        falarTexto(data.text);
+        falarTexto(textoResultado);
       } catch (err) {
         console.error(err);
         aiStatus.textContent = "Erro na análise:";

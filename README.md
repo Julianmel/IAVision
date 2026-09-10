@@ -25,7 +25,22 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 
 ---
 
-## 🛠️ Como Executar Localmente
+---
+
+## ⚡ Como Executar no Windows (Sem Instalar Nada)
+
+Você pode baixar e executar diretamente o **executável autônomo** para Windows:
+
+1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
+2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.0.0-Windows.zip`).
+3. Dê um duplo clique em `IAVision.exe`:
+   * O servidor local é iniciado automaticamente.
+   * Seu navegador padrão abrirá em **http://localhost:3000**.
+   * Não precisa de Node.js nem de dependências adicionais instaladas!
+
+---
+
+## 🛠️ Como Executar com Node.js (Desenvolvedores)
 
 ### Pré-requisitos
 * [Node.js](https://nodejs.org/) instalado (v18 ou superior).
@@ -46,7 +61,7 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 3. Abra o navegador no endereço:
    👉 **[http://localhost:3000](http://localhost:3000)**
 
-4. Insira sua chave do Google AI Studio no topo (formato `AQ.` ou `AIza...`) e clique em **"🧪 Testar Chave"**. A chave fica salva no navegador.
+4. Insira sua chave do Google AI Studio no topo (formato `AQ.` ou `AIza...`) e clique em **"🧪 Testar Chave"**. A chave fica salva localmente no navegador.
 
 ---
 
