@@ -28,3 +28,8 @@ android/local.properties
 android/**/build/
 **/build/
 *.hprof
+
+# Executáveis
+*.exe
+*.apk
+*.APK
