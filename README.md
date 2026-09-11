@@ -22,10 +22,9 @@ Aplicação autônoma para visão computacional, leitura integral de documentos 
 | :--- | :--- |
 | **"Ler documento"** / **"Ler documento todo"** / **"Leia tudo"** | Dispara o OCR exaustivo para transcrever cada linha de documentos e tabelas. |
 | **"Pergunta: [sua dúvida]"** / **"Dúvida: [sua dúvida]"** | Faz uma pergunta por voz para a IA sobre o documento digitalizado. |
+| **"Câmera traseira"** / **"Câmera frontal"** / **"Trocar câmera"** | Alterna entre as câmeras frontal e traseira do celular ou computador. |
 | **"Tirar uma foto"** / **"O que você vê?"** / **"Olha isso"** | Descreve a cena ou objetos na frente da câmera. |
 | **"Silêncio"** / **"Parar"** / **"Para a voz"** | Interrompe imediatamente o narrador de áudio. |
-
----
 
 ---
 
@@ -36,7 +35,7 @@ Você pode instalar o **IAVision** diretamente no seu smartphone Android:
 1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
 2. Baixe o arquivo **`IAVision.APK`**.
 3. Toque no arquivo baixado no celular para instalar (autorize a instalação de fontes desconhecidas se solicitado).
-4. Abra o **IAVision**: conceda as permissões de Câmera e Microfone quando solicitadas e use o app diretamente pelo celular!
+4. Abra o **IAVision**: conceda as permissões de Câmera e Microfone quando solicitadas e use o app diretamente pelo celular (inicia automaticamente na câmera traseira com opção de alternar)!
 
 ---
 
@@ -45,7 +44,7 @@ Você pode instalar o **IAVision** diretamente no seu smartphone Android:
 Você pode baixar e executar diretamente o **executável autônomo** para Windows:
 
 1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
-2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.1-Windows.zip`).
+2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.2-Windows.zip`).
 3. Dê um duplo clique em `IAVision.exe`:
    * O servidor local é iniciado automaticamente.
    * Seu navegador padrão abrirá em **http://localhost:3000**.

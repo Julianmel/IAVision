@@ -132,7 +132,32 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1);
+      transition: transform 0.2s;
+    }
+    .btn-cam-switch {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(6px);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.2s;
+    }
+    .btn-cam-switch:hover {
+      background: rgba(30, 41, 59, 0.95);
+      transform: scale(1.05);
+      border-color: #38bdf8;
     }
     .flash-overlay {
       position: absolute;
@@ -591,6 +616,9 @@
       <div class="video-wrapper">
         <video id="webcam" autoplay playsinline muted></video>
         <div id="flash" class="flash-overlay"></div>
+        <button id="btnSwitchCameraFloat" class="btn-cam-switch" onclick="alternarCamera()" title="Alternar entre Câmera Traseira e Frontal">
+          🔄 <span id="camLabel">Traseira</span>
+        </button>
       </div>
 
       <div class="voice-bar">
@@ -604,6 +632,9 @@
         </button>
         <button class="btn btn-primary" onclick="dispararFluxo('geral')">
           📸 Descrever Cena
+        </button>
+        <button class="btn btn-secondary" id="btnSwitchCamera" onclick="alternarCamera()" title="Alternar entre câmera traseira e frontal">
+          🔄 Câmera: Traseira
         </button>
         <button class="btn btn-secondary" id="micBtn" onclick="toggleVoz()">
           🎤 Microfone
@@ -706,6 +737,13 @@
       <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Pergunta: [sua dúvida]"</span>
       <span class="badge-command" style="background: #1e3a8a; color: #93c5fd;">"Dúvida: [sua dúvida]"</span>
       <br><br>
+      <strong>Comandos de voz para Alternar a Câmera (Traseira / Frontal):</strong>
+      <br>
+      👉 Diga:
+      <span class="badge-command" style="background: #0f766e; color: #5eead4;">"Câmera traseira"</span>
+      <span class="badge-command" style="background: #0f766e; color: #5eead4;">"Câmera frontal"</span>
+      <span class="badge-command" style="background: #0f766e; color: #5eead4;">"Trocar câmera"</span>
+      <br><br>
       <strong>Comando de voz para Interromper a Leitura:</strong>
       <br>
       👉 Diga:
@@ -743,6 +781,8 @@
     let ultimaImagemBase64 = '';
     let qaRecognition = null;
     let isQAListening = false;
+    let currentFacingMode = 'environment';
+    let currentStream = null;
 
     let isSpeechCancelled = false;
     window.utteranceQueue = [];
@@ -1006,21 +1046,70 @@
       }, 80);
     }
 
-    async function startCamera() {
+    async function startCamera(facingMode = currentFacingMode) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        currentFacingMode = facingMode;
+
+        if (currentStream) {
+          try {
+            currentStream.getTracks().forEach(function(track) { track.stop(); });
+          } catch(e) {}
+          currentStream = null;
+        }
+
+        const constraints = {
           video: {
+            facingMode: { ideal: currentFacingMode },
             width: { ideal: 1920, min: 1280 },
             height: { ideal: 1080, min: 720 }
           },
           audio: false
-        });
+        };
+
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (err1) {
+          console.warn("Tentando fallback com facingMode direto:", err1);
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: currentFacingMode },
+              audio: false
+            });
+          } catch (err2) {
+            console.warn("Tentando qualquer câmera disponível:", err2);
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false
+            });
+          }
+        }
+
+        currentStream = stream;
         video.srcObject = stream;
+
+        atualizarVisualizacaoCamera();
         iniciarEscutaVoz();
       } catch (err) {
         aiStatus.textContent = "Erro na câmera: " + (err.message || err.name);
         aiStatus.style.color = "#f87171";
       }
+    }
+
+    function atualizarVisualizacaoCamera() {
+      const isEnv = currentFacingMode === 'environment';
+      video.style.transform = isEnv ? 'none' : 'scaleX(-1)';
+
+      const camLabel = document.getElementById('camLabel');
+      if (camLabel) camLabel.textContent = isEnv ? 'Traseira' : 'Frontal';
+
+      const btnSwitch = document.getElementById('btnSwitchCamera');
+      if (btnSwitch) btnSwitch.innerHTML = isEnv ? '🔄 Câmera: Traseira' : '🔄 Câmera: Frontal';
+    }
+
+    async function alternarCamera() {
+      const novoModo = currentFacingMode === 'environment' ? 'user' : 'environment';
+      await startCamera(novoModo);
     }
 
     function iniciarEscutaVoz() {
@@ -1066,6 +1155,25 @@
         if (matchParar) {
           pararAudio();
           transcriptEl.innerHTML = '<strong style="color: #ef4444;">🛑 Voz interrompida com sucesso!</strong>';
+          return;
+        }
+
+        // Comandos de voz para alternar a câmera
+        if (texto.includes('câmera traseira') || texto.includes('camera traseira')) {
+          if (currentFacingMode !== 'environment') alternarCamera();
+          transcriptEl.innerHTML = '<strong style="color: #38bdf8;">🔄 Câmera traseira ativada!</strong>';
+          return;
+        }
+
+        if (texto.includes('câmera frontal') || texto.includes('camera frontal')) {
+          if (currentFacingMode !== 'user') alternarCamera();
+          transcriptEl.innerHTML = '<strong style="color: #38bdf8;">🔄 Câmera frontal ativada!</strong>';
+          return;
+        }
+
+        if (texto.includes('trocar câmera') || texto.includes('trocar camera') || texto.includes('alternar câmera') || texto.includes('alternar camera') || texto.includes('mudar câmera') || texto.includes('mudar camera')) {
+          alternarCamera();
+          transcriptEl.innerHTML = '<strong style="color: #38bdf8;">🔄 Câmera alternada!</strong>';
           return;
         }
 
