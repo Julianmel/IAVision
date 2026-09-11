@@ -812,7 +812,14 @@
 
     // Chamada direta à API do Google Gemini (funciona no GitHub Pages sem backend!)
     async function chamarGeminiDireto(base64Image, apiKey, prompt) {
-      const modelos = ['gemini-3.6-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+      const modelos = [
+        'gemini-flash-latest',
+        'gemini-3.5-flash',
+        'gemini-3.7-flash',
+        'gemini-3.6-flash',
+        'gemini-flash-lite-latest',
+        'gemini-3.8-flash'
+      ];
       const parts = [{ text: prompt }];
       if (base64Image) {
         parts.push({
@@ -845,15 +852,18 @@
           });
           const data = await resp.json();
           if (!resp.ok) {
-            throw new Error(data.error?.message || ('Erro HTTP ' + resp.status));
+            const erroMsg = data.error?.message || ('Erro HTTP ' + resp.status);
+            console.warn(`[GEMINI] Tentativa com ${modelo} retornou erro:`, erroMsg);
+            throw new Error(erroMsg);
           }
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) return text.trim();
         } catch (e) {
+          console.warn(`[GEMINI] Erro ao chamar ${modelo}:`, e.message);
           ultimoErro = e;
         }
       }
-      throw ultimoErro || new Error('Não foi possível obter resposta do Gemini.');
+      throw ultimoErro || new Error('Não foi possível obter resposta dos modelos do Gemini.');
     }
 
     async function testarChave() {

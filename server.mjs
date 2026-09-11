@@ -83,7 +83,14 @@ Sua resposta será lida em voz alta em português do Brasil.`;
     }
   };
 
-  const modelosPreferidos = ['gemini-3.6-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+  const modelosPreferidos = [
+    'gemini-flash-latest',
+    'gemini-3.5-flash',
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
+    'gemini-flash-lite-latest',
+    'gemini-3.8-flash'
+  ];
   let ultimoErro = null;
 
   for (const modelo of modelosPreferidos) {

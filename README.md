@@ -44,7 +44,7 @@ Você pode instalar o **IAVision** diretamente no seu smartphone Android:
 Você pode baixar e executar diretamente o **executável autônomo** para Windows:
 
 1. Acesse os lançamentos: 👉 **[Releases do IAVision no GitHub](https://github.com/Julianmel/IAVision/releases)**
-2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.2-Windows.zip`).
+2. Baixe o `IAVision.exe` (ou o pacote `IAVision-v1.2.3-Windows.zip`).
 3. Dê um duplo clique em `IAVision.exe`:
    * O servidor local é iniciado automaticamente.
    * Seu navegador padrão abrirá em **http://localhost:3000**.

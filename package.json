@@ -1,6 +1,6 @@
 {
   "name": "iavision",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Assistente Visual Inteligente e Leitor de Documentos (OCR) com Gemini 3.6 Flash e Controle por Voz",
   "main": "server.mjs",
   "type": "module",
