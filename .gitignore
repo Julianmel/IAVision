@@ -33,3 +33,6 @@ android/**/build/
 *.exe
 *.apk
 *.APK
+
+# Outros
+*.ZIP
